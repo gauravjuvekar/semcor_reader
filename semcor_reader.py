@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+import logging
+logging.basicConfig()
+log = logging.getLogger(__name__)
+log.setLevel(logging.WARNING)
+
 import nltk
 import bs4
 wordnet = nltk.wordnet.wordnet
@@ -18,19 +23,24 @@ def read_para(para):
                 pos = token['pos'][0].lower()
                 if pos not in ('a', 'n', 'v'):
                     pos = None
-                lemma_key = lemma + '%' + lexsn
-                try:
-                    wn_lemma = wordnet.lemma_from_key(lemma_key)
-                except nltk.corpus.reader.wordnet.WordNetError:
-                    wn_lemma = lemma_key
+                lexsn_s = lexsn.split(';')
+                lemma_keys = [lemma + '%' + lexsn for lexsn in lexsn_s]
+                wn_lemmas = []
+                for lemma_key in lemma_keys:
+                    try:
+                        wn_lemma = wordnet.lemma_from_key(lemma_key)
+                    except nltk.corpus.reader.wordnet.WordNetError:
+                        log.warning("No wordnet lexsn found for %s", lemma_key)
+                        wn_lemma = lemma_key
+                    wn_lemmas.append(wn_lemma)
             else:
-                wn_lemma = None
+                wn_lemmas = None
                 lemma = None
                 pos = None
             string = token.string
             words = nltk.tokenize.word_tokenize(string.replace('_', ' '))
             tokens.append({'words': words,
-                           'true_sense': wn_lemma,
+                           'true_senses': wn_lemmas,
                            'lemma': lemma,
                            'pos': pos})
         else:
