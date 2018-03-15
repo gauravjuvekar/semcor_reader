@@ -10,6 +10,15 @@ wordnet = nltk.wordnet.wordnet
 wordnet.ensure_loaded()
 
 
+def penn2morphy(penntag):
+    morphy_tag = {'NN':wordnet.NOUN, 'JJ':wordnet.ADJ,
+                  'VB':wordnet.VERB, 'RB':wordnet.ADV}
+    try:
+        return morphy_tag[penntag[:2]]
+    except KeyError:
+        return None
+
+
 def read_para(para):
     sents = []
     for sentence in para.findAll('s'):
@@ -20,9 +29,8 @@ def read_para(para):
             if token.get('lemma') is not None:
                 lemma = token['lemma']
                 lexsn = token['lexsn']
-                pos = token['pos'][0].lower()
-                if pos not in ('a', 'n', 'v'):
-                    pos = None
+                pos = token['pos'].upper()
+                pos = penn2morphy(pos)
                 lexsn_s = lexsn.split(';')
                 lemma_keys = [lemma + '%' + lexsn for lexsn in lexsn_s]
                 wn_lemmas = []
