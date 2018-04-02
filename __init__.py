@@ -1,1 +1,2 @@
-from .semcor_reader import *
+from . import semcor_reader
+from . import semeval_reader
