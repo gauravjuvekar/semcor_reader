@@ -27,6 +27,7 @@ def read_para(para):
             if token == '\n':
                 continue
             if token.get('lemma') is not None:
+                disambiguate = True
                 lemma = token['lemma']
                 lexsn = token['lexsn']
                 pos = token['pos'].upper()
@@ -42,12 +43,14 @@ def read_para(para):
                         wn_lemma = lemma_key
                     wn_lemmas.append(wn_lemma)
             else:
+                disambiguate = False
                 wn_lemmas = None
                 lemma = None
                 pos = None
             string = token.string
             words = nltk.tokenize.word_tokenize(string.replace('_', ' '))
             tokens.append({'words': words,
+                           'disambiguate?': disambiguate,
                            'true_senses': wn_lemmas,
                            'lemma': lemma,
                            'pos': pos})
